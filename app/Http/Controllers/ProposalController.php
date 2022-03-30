@@ -27,9 +27,9 @@ class ProposalController extends Controller
         if(!$proposal) {
             $proposal = new Proposal;
             $proposal->size_name = $size_name;
+            $proposal->save();
         }
         Storage::disk('public_path')->putFileAs('/pdf', $file, $size_name);
-        $proposal->save();
         DB::commit();
         return response()->json(['message' => 'success'], 200);
     }

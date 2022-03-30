@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Country;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CountryController extends Controller
@@ -12,16 +13,16 @@ class CountryController extends Controller
         $validator = validator($request->all(), [
             'name' => 'nullable|string'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-        $country = Country::when($request->get('name'), function($q) use($request) {
-            $q->where('name', $request->get('name'));
+        $users = User::when($request->get('name'), function ($q) use ($request) {
+            $q->whereHas('companies.country', function ($q) use ($request) {
+                $q->where('name', $request->get('name'));
+            });
         })
-        ->with(['companies' => function($q) {
-            $q->with(['users']);
-        }])
-        ->get();
-        return response()->json($country, 200);
+            ->with(['companies.country'])
+            ->get();
+        return response()->json($users, 200);
     }
 }
